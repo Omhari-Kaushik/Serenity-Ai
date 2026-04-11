@@ -10,7 +10,7 @@ async function sendMessageToAI(userMessage, conversationHistory = []) {
       window.location.hostname === "localhost" ||
       window.location.hostname === "127.0.0.1"
         ? "http://localhost:3000"
-        : "";
+        : "https://serenity-backend-dosd.onrender.com";
 
     const response = await fetch(`${API_BASE}/chat`, {
       method: "POST",
