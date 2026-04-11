@@ -57,6 +57,7 @@ function getSimulatedResponse() {
 
 let chatInitialized = false;
 let moodSelectorInitialized = false;
+let isSendingMessage = false;
 
 function formatAssistantContent(text) {
   if (!text) return "";
@@ -152,7 +153,36 @@ function hideTypingIndicator() {
   if (el) el.remove();
   AppState.isTyping = false;
 }
+// 
+function showSlowResponseNotice() {
+  const list = document.getElementById("message-list");
+  if (!list || document.getElementById("slow-response-notice")) return;
 
+  const notice = document.createElement("div");
+  notice.className = "message-wrapper assistant";
+  notice.id = "slow-response-notice";
+
+  const avatar = document.createElement("div");
+  avatar.className = "message-avatar";
+  avatar.textContent = "✦";
+
+  const bubble = document.createElement("div");
+  bubble.className = "message-bubble";
+  bubble.textContent = "Still with you... just taking a moment to respond.";
+
+  notice.appendChild(avatar);
+  notice.appendChild(bubble);
+  list.appendChild(notice);
+
+  requestAnimationFrame(() => notice.classList.add("visible"));
+  scrollToBottom();
+}
+
+function hideSlowResponseNotice() {
+  const notice = document.getElementById("slow-response-notice");
+  if (notice) notice.remove();
+}
+// 
 function scrollToBottom(behavior = "smooth") {
   const list = document.getElementById("message-list");
   if (!list) return;
@@ -176,15 +206,17 @@ function formatAndRenderAssistantMessage(text) {
 async function handleSend() {
   const input = document.getElementById("chat-input");
   if (!input) return;
-
+  
   const text = input.value.trim();
 
 
-  if (!text || AppState.isTyping) return;
+  if (!text || AppState.isTyping || isSendingMessage) return;
 
+  isSendingMessage = true;
   input.value = "";
   input.style.height = "auto";
   toggleSendBtn(false);
+  input.disabled=true;
 
   renderMessage("user", text);
 
@@ -196,6 +228,12 @@ async function handleSend() {
   if (emotion) updateContext({ emotion });
   
   showTypingIndicator();
+
+  setTimeout(() => {
+    if (AppState.isTyping) {
+      showSlowResponseNotice();
+    }
+  }, 6000);
 
 setTimeout(async () => {
   try {
@@ -233,6 +271,9 @@ setTimeout(async () => {
       if (currentSessionId !== AppState.activeSessionId) return;
 
       hideTypingIndicator();
+      hideSlowResponseNotice();
+      isSendingMessage = false;
+      input.disabled=false;
 
       formatAndRenderAssistantMessage(reply);
 
@@ -245,8 +286,11 @@ setTimeout(async () => {
 
   } catch (error) {
     hideTypingIndicator();
+    hideSlowResponseNotice();
+    isSendingMessage = false;
+    input.disabled=false;
     console.error("handleSend error:", error);
-    renderMessage("assistant", "Something went wrong while showing the reply.");
+    renderMessage("assistant", "I’m having a little trouble responding right now. If this is the first message, the server may just be waking up — please try again in a few seconds.");
   }
 }, 300);
 }
