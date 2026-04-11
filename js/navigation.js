@@ -92,4 +92,4 @@ function initNavigation() {
       if (sidebar) sidebar.classList.remove("open");
     });
   }
-}
+} 
