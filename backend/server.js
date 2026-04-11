@@ -46,12 +46,12 @@ if (!OPENROUTER_API_KEY) {
 
 // Model fallback order
 
-// const MODELS = ["openrouter/free"];
-const MODELS = [
-  "qwen/qwen3.6-plus:free",
-  "meta-llama/llama-3.1-8b-instruct:free",
-  "openrouter/free"
-];
+const MODELS = ["openrouter/free"];
+// const MODELS = [
+//   "qwen/qwen3.6-plus:free",
+//   "meta-llama/llama-3.1-8b-instruct:free",
+//   "openrouter/free"
+// ];
 // const MODELS = [
 //   "openchat/openchat-3.5-0106",
 //   "mistralai/mistral-7b-instruct",
