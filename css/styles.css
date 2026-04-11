@@ -1909,3 +1909,147 @@ body.reduce-motion .glass-card:hover {
   transform: translateX(-30%) translateY(0);
 }
 
+.journal-entry-content.collapsed {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.journal-toggle-btn {
+  margin-top: 10px;
+  background: transparent;
+  border: none;
+  color: #cbb6ff;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.journal-toggle-btn:hover {
+  opacity: 0.85;
+}
+
+.journal-filter-bar {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 6px;
+  margin-bottom: 16px;
+}
+
+.journal-filter-bar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.journal-filter-bar::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
+}
+
+.journal-filter-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.78);
+  color: #6f6486;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.journal-filter-pill.active {
+  background: rgba(203, 182, 255, 0.18);
+  border-color: #cbb6ff;
+  color: #5c4d78;
+}
+
+.journal-filter-pill {
+  /* background: var(--journal-pill-color, rgba(255,255,255,0.08))33; */
+  border: 1px solid var(--journal-pill-color, rgba(255,255,255,0.2))88;
+}
+
+.journal-filter-pill.active {
+  background: var(--journal-pill-color);
+  color: white;
+  border-color: var(--journal-pill-color);
+}
+
+.journal-entry-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.journal-edit-btn,
+.journal-delete-btn {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: #6f6486;
+  transition: all 0.2s ease;
+}
+
+/* Edit = soft purple */
+.journal-edit-btn:hover {
+  background: rgba(203, 182, 255, 0.2);
+  border-color: #cbb6ff;
+  color: #4f3d73;
+}
+
+/* Delete = soft red */
+.journal-delete-btn:hover {
+  background: rgba(255, 120, 120, 0.2);
+  border-color: #ff7878;
+  color: #7a2e2e;
+}
+
+.journal-search-bar {
+  margin: 16px 0;
+}
+
+.journal-search-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.39);
+  color: #6f6486;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.journal-top-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+
+}
+
+.journal-date-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.journal-search-input {
+  flex: 1;
+  min-width: 200px;
+  max-width: 260px;
+}
+
+.journal-date-filters {
+  display: flex;
+  gap: 8px;
+  
+}
+

@@ -236,7 +236,61 @@ function renderJournalView() {
 
   if (!editorEl || !listEl) return;
 
-  const entries = getJournalEntries().slice().reverse();
+  const searchQuery = AppState.journalSearchQuery || "";
+
+  const allEntries = getJournalEntries().slice().reverse();
+
+  const filterMood = AppState.journalFilterMood || "all";
+
+  const dateFilter = AppState.journalDateFilter || "all";
+
+  // const searchInputEl = document.getElementById("journal-search-input");
+  // const searchQuery = searchInputEl ? searchInputEl.value.toLowerCase() : "";
+
+  let entries = allEntries;
+
+  if (dateFilter !== "all") {
+    const now = new Date();
+
+    entries = entries.filter((entry) => {
+      const entryDate = new Date(entry.timestamp);
+
+      if (dateFilter === "today") {
+        return (
+          entryDate.getDate() === now.getDate() &&
+          entryDate.getMonth() === now.getMonth() &&
+          entryDate.getFullYear() === now.getFullYear()
+        );
+      }
+
+      if (dateFilter === "week") {
+        const diffMs = now - entryDate;
+        const diffDays = diffMs / (1000 * 60 * 60 * 24);
+        return diffDays <= 7;
+      }
+
+      if (dateFilter === "month") {
+        return (
+          entryDate.getMonth() === now.getMonth() &&
+          entryDate.getFullYear() === now.getFullYear()
+        );
+      }
+
+      return true;
+    });
+  }
+
+  if (filterMood !== "all") {
+    entries = entries.filter(entry => entry.mood === filterMood);
+  }
+
+  if (searchQuery) {
+    entries = entries.filter(entry =>
+      entry.content.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }
+
+  const editingJournalEntryId = AppState.editingJournalEntryId || null;
 
   const journalMoodId =
     AppState.journalDraftMood !== undefined
@@ -289,7 +343,10 @@ function renderJournalView() {
         id="journal-textarea"
         class="journal-textarea"
         placeholder="Write whatever is on your mind..."
-      ></textarea>
+        >${editingJournalEntryId
+          ? (getJournalEntries().find((e) => String(e.timestamp) === String(editingJournalEntryId))?.content || "")
+          : ""}
+      </textarea>
 
       ${moodPreview}
 
@@ -300,19 +357,79 @@ function renderJournalView() {
         </div>
       </div>
 
-      <button id="save-journal-btn" class="journal-save-btn">Save entry</button>
+      <button id="save-journal-btn" class="journal-save-btn">
+        ${editingJournalEntryId ? "Update entry" : "Save entry"}
+      </button>
+    </div>
+  `;
+
+  
+  
+  const journalFilterOptions = `
+    <button
+      type="button"
+      class="journal-filter-pill ${filterMood === "all" ? "active" : ""}"
+      data-journal-filter="all"
+    >
+      All
+    </button>
+  ` + AppConfig.moods.map((mood) => `
+    <button
+      type="button"
+      class="journal-filter-pill ${filterMood === mood.id ? "active" : ""}"
+      data-journal-filter="${mood.id}"
+      style="--journal-pill-color: ${mood.color};"
+    >
+      ${mood.emoji} ${mood.label}
+    </button>
+  `).join("");
+
+  const dateFilterOptions = `
+    <button class="journal-filter-pill ${dateFilter === "all" ? "active" : ""}" data-date-filter="all">
+      All time
+    </button>
+    <button class="journal-filter-pill ${dateFilter === "today" ? "active" : ""}" data-date-filter="today">
+      Today
+    </button>
+    <button class="journal-filter-pill ${dateFilter === "week" ? "active" : ""}" data-date-filter="week">
+      This week
+    </button>
+    <button class="journal-filter-pill ${dateFilter === "month" ? "active" : ""}" data-date-filter="month">
+      This month
+    </button>
+  `;
+
+  editorEl.innerHTML += `
+    <div class="journal-top-bar">
+      <input 
+        id="journal-search-input" 
+        type="text" 
+        placeholder="Search..."
+        class="journal-search-input"
+        value="${searchQuery}"
+      />
+
+      <div class="journal-date-filters">
+        ${dateFilterOptions}
+      </div>
+    </div>
+  `;
+
+  listEl.innerHTML = `
+    <div class="journal-filter-bar">
+      ${journalFilterOptions}
     </div>
   `;
 
   if (entries.length === 0) {
-    listEl.innerHTML = `
+    listEl.innerHTML += `
       <div class="glass-card journal-card journal-empty">
         <div class="journal-empty-title">No entries yet</div>
         <div class="journal-empty-text">Your saved reflections will appear here.</div>
       </div>
     `;
   } else {
-    listEl.innerHTML = entries.map((entry) => {
+    listEl.innerHTML += entries.map((entry) => {
       const moodConfig = AppConfig.moods.find((m) => m.id === entry.mood);
       const moodTag = moodConfig
         ? `<span 
@@ -326,6 +443,7 @@ function renderJournalView() {
 
       return `
         <div class="glass-card journal-card">
+          
           <div class="journal-entry-meta">
             <div class="journal-entry-time">${new Date(entry.timestamp).toLocaleString("en-IN", {
               day: "numeric",
@@ -335,7 +453,19 @@ function renderJournalView() {
             })}</div>
             ${moodTag}
           </div>
-          <div class="journal-entry-content">${entry.content}</div>
+
+          ${entry.content.length > 180 ? `
+            <div class="journal-entry-content collapsed">${entry.content}</div>
+            <button class="journal-toggle-btn" type="button">Show more</button>
+          ` : `
+            <div class="journal-entry-content">${entry.content}</div>
+          `}
+
+          <div class="journal-entry-actions">
+            <button class="journal-edit-btn" data-id="${entry.timestamp}">Edit</button>
+            <button class="journal-delete-btn" data-id="${entry.timestamp}">Delete</button>
+          </div>
+
         </div>
       `;
     }).join("");
@@ -354,14 +484,137 @@ function renderJournalView() {
     });
   });
 
+  const journalToggleButtons = document.querySelectorAll(".journal-toggle-btn");
+
+  journalToggleButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const contentEl = btn.previousElementSibling;
+      if (!contentEl) return;
+
+      const isCollapsed = contentEl.classList.contains("collapsed");
+
+      if (isCollapsed) {
+        contentEl.classList.remove("collapsed");
+        btn.textContent = "Show less";
+      } else {
+        contentEl.classList.add("collapsed");
+        btn.textContent = "Show more";
+      }
+    });
+  });
+
+  const dateFilterPills = document.querySelectorAll("[data-date-filter]");
+
+  dateFilterPills.forEach((pill) => {
+    pill.addEventListener("click", () => {
+      AppState.journalDateFilter = pill.dataset.dateFilter || "all";
+      renderJournalView();
+    });
+  });
+
+  const journalFilterPills = document.querySelectorAll(".journal-filter-pill");
+
+  journalFilterPills.forEach((pill) => {
+    pill.addEventListener("click", () => {
+      AppState.journalFilterMood = pill.dataset.journalFilter || "all";
+      renderJournalView();
+    });
+  });
+
+  const searchInput = document.getElementById("journal-search-input");
+
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      AppState.journalSearchQuery = e.target.value;
+      renderJournalView();
+
+      requestAnimationFrame(() => {
+        const newSearchInput = document.getElementById("journal-search-input");
+        if (newSearchInput) {
+          newSearchInput.focus();
+          newSearchInput.setSelectionRange(
+            newSearchInput.value.length,
+            newSearchInput.value.length
+          );
+        }
+      });
+    });
+  }
+
+  const editButtons = document.querySelectorAll(".journal-edit-btn");
+
+    editButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const entryId = btn.dataset.id;
+
+        const entry = getJournalEntries().find(
+          (e) => String(e.timestamp) === String(entryId)
+        );
+
+        if (!entry) return;
+
+        const textarea = document.getElementById("journal-textarea");
+        if (textarea) {
+          textarea.value = entry.content;
+          textarea.focus();
+        }
+
+        AppState.journalDraftMood = entry.mood || null;
+        AppState.editingJournalEntryId = entryId;
+
+        renderJournalView();
+      });
+    });
+
+  const deleteButtons = document.querySelectorAll(".journal-delete-btn");
+
+  deleteButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const entryId = btn.dataset.id;
+
+      AppState.userProfile.journalEntries = getJournalEntries().filter(
+        (entry) => String(entry.timestamp) !== String(entryId)
+      );
+
+      persistUserProfile();
+      saveAppState();
+      renderJournalView();
+    });
+  });
+
   if (saveBtn && textarea) {
     saveBtn.addEventListener("click", () => {
       const text = textarea.value.trim();
       if (!text) return;
 
-      storeJournalEntry(text, AppState.journalDraftMood ?? AppState.currentMood ?? null);
+      if (AppState.editingJournalEntryId) {
+        // 🔥 UPDATE existing entry
+        AppState.userProfile.journalEntries = getJournalEntries().map((entry) => {
+          if (String(entry.timestamp) === String(AppState.editingJournalEntryId)) {
+            return {
+              ...entry,
+              content: text,
+              mood: AppState.journalDraftMood ?? AppState.currentMood ?? null
+            };
+          }
+          return entry;
+        });
+
+        AppState.editingJournalEntryId = null;
+
+      } else {
+        // ➕ CREATE new entry
+        storeJournalEntry(
+          text,
+          AppState.journalDraftMood ?? AppState.currentMood ?? null
+        );
+      }
+
       AppState.journalDraftMood = null;
       textarea.value = "";
+
+      persistUserProfile();
+      saveAppState();
       renderJournalView();
     });
   }
