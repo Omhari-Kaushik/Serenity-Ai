@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Serenity — your AI emotional wellness companion. A safe space to talk, reflect, and find calm." />
+  <title>Serenity — AI Emotional Wellness Companion</title>
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>✦</text></svg>" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <div id="breathing-bg" aria-hidden="true"></div>
+  <canvas id="particle-canvas" aria-hidden="true"></canvas>
+
+  <div id="app">
+
+    <button id="hamburger" aria-label="Open menu" aria-expanded="false">
+      <span class="ham-line"></span>
+      <span class="ham-line"></span>
+      <span class="ham-line"></span>
+    </button>
+
+    <div id="sidebar-overlay" aria-hidden="true"></div>
+
+    <nav id="sidebar" role="navigation" aria-label="Main navigation">
+
+      <div class="sidebar-brand">
+        <div class="brand-icon" aria-hidden="true">✦</div>
+        <div>
+          <div class="brand-name">Serenity 🌿</div>
+          <div class="brand-tagline">Wellness Companion</div>
+        </div>
+      </div>
+
+      <div id="session-list-container">
+        <div class="session-header">Chats</div>
+        <div id="session-list"></div>
+      </div>
+
+      <button id="new-chat-btn">+ New Chat</button>
+
+      <ul class="nav-list" role="menubar">
+
+        
+
+        <li class="nav-item" data-view="mood" role="menuitem" tabindex="0" aria-label="Mood Tracker">
+          <span class="nav-icon" aria-hidden="true">🌸</span>
+          <span class="nav-label">Mood Tracker</span>
+        </li>
+
+        <li class="nav-item" data-view="journal" role="menuitem" tabindex="0" aria-label="Journal">
+          <span class="nav-icon" aria-hidden="true">📓</span>
+          <span class="nav-label">Journal</span>
+        </li>
+
+        <li class="nav-item" data-view="voice" role="menuitem" tabindex="0" aria-label="Voice Talk">
+          <span class="nav-icon" aria-hidden="true">🎙️</span>
+          <span class="nav-label">Voice Talk</span>
+          <span class="nav-badge">Soon</span>
+        </li>
+
+        <li class="nav-item" data-view="insights" role="menuitem" tabindex="0" aria-label="Insights">
+          <span class="nav-icon" aria-hidden="true">✨</span>
+          <span class="nav-label">Insights</span>
+        </li>
+
+        <li class="nav-item" data-view="settings" role="menuitem" tabindex="0" aria-label="Settings">
+          <span class="nav-icon" aria-hidden="true">⚙️</span>
+          <span class="nav-label">Settings</span>
+        </li>
+
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="user-card" id="sidebar-user-card">
+          <div class="user-avatar" aria-hidden="true">🌿</div>
+          <div class="user-info">
+            <div class="user-name" id="sidebar-user-name">You</div>
+            <div class="user-status">Here for you</div>
+          </div>
+        </div>
+      </div>
+
+    </nav>
+
+    <main id="main-content" role="main">
+
+      <section id="chat-view" class="view active" role="region" aria-label="Chat with Serenity">
+
+        <header class="chat-header">
+          <div class="chat-header-identity">
+            <div class="chat-avatar" aria-hidden="true">✦</div>
+            <div>
+              <div class="chat-header-name">Serenity 🌿</div>
+              <div class="chat-header-status">
+                <span class="status-dot" aria-hidden="true"></span>
+                <span>Present with you</span>
+              </div>
+            </div>
+          </div>
+          <div class="chat-header-actions">
+            <button class="header-action-btn" title="Clear conversation" id="clear-chat-btn" aria-label="Clear conversation">🗑️</button>
+            <button id="info-btn" class="header-action-btn" title="View conversation info" aria-label="Conversation info">ℹ️</button>
+          </div>
+        </header>
+
+        <div id="message-list" role="log" aria-live="polite" aria-label="Conversation messages"></div>
+
+        <div class="chat-input-area">
+
+          <div class="mood-row" role="group" aria-label="How are you feeling?">
+            <span class="mood-label" aria-hidden="true">Feeling</span>
+            <div id="mood-selector" role="radiogroup" aria-label="Select your current mood"></div>
+          </div>
+
+          <div class="input-row">
+            <textarea
+              id="chat-input"
+              placeholder="Share what's on your mind…"
+              rows="1"
+              aria-label="Type your message"
+              aria-multiline="true"
+            ></textarea>
+            <div class="input-actions">
+              <button id="attach-btn" class="input-action-btn" title="Attach" aria-label="Attach file">📎</button>
+              <button id="send-btn" title="Send message" aria-label="Send message">
+                ➤
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <section id="mood-view" class="view" role="region" aria-label="Mood Tracker">
+        <div class="placeholder-view mood-layout-fix">
+          <div class="placeholder-icon" aria-hidden="true">🌸</div>
+          <h1 class="placeholder-title">Mood Tracker</h1>
+          <p class="placeholder-subtitle">
+            Track how you feel day by day. Patterns in your mood can reveal a lot about your wellbeing journey.
+          </p>
+
+        <div id="mood-tracker-content">
+          <div id="mood-filter-bar">
+            <button class="mood-filter active" data-filter="day">Today</button>
+            <button class="mood-filter" data-filter="week">Week</button>
+            <button class="mood-filter" data-filter="month">Month</button>
+            <button class="mood-filter" data-filter="all">All</button>
+          </div>
+          
+          <div id="mood-summary-card" class="glass-card"></div>
+          <div id="mood-insight-card" class="glass-card"></div>
+          <div id="mood-chart-card" class="glass-card"></div>
+          <div id="mood-history-list"></div>
+        </div>
+
+      </section>
+
+      <section id="journal-view" class="view" role="region" aria-label="Journal">
+        <div class="placeholder-view">
+
+          <!-- HEADER -->
+          <div class="journal-header">
+            <div class="placeholder-icon" aria-hidden="true">📓</div>
+            <h1 class="placeholder-title">Your Journal</h1>
+            <p class="placeholder-subtitle">
+              A private space for your thoughts, reflections, and intentions. Write freely — no one else will see this.
+            </p>
+          </div>
+
+          <!-- CONTENT -->
+          <div class="journal-content">
+            <div id="journal-editor" style="width:100%;max-width:640px;margin-top:24px;"></div>
+            <div id="journal-entries-list" style="width:100%;max-width:640px;"></div>
+          </div>
+
+        </div>
+      </section>
+
+      <section id="voice-view" class="view" role="region" aria-label="Voice Talk">
+        <div class="placeholder-view">
+          <div class="placeholder-icon" aria-hidden="true">🎙️</div>
+          <h1 class="placeholder-title">Voice Talk</h1>
+          <p class="placeholder-subtitle">
+            Sometimes it's easier to speak than to type. Talk to Serenity in your own voice, and she'll listen.
+          </p>
+          <span class="placeholder-chip">Coming soon</span>
+
+          <div id="voice-visualizer" style="width:100%;max-width:480px;margin-top:32px;"></div>
+          <div id="voice-transcript" style="width:100%;max-width:480px;"></div>
+        </div>
+      </section>
+
+      <section id="insights-view" class="view" role="region" aria-label="Insights">
+        <div class="placeholder-view">
+          <div class="placeholder-icon" aria-hidden="true">✨</div>
+          <h1 class="placeholder-title">Insights</h1>
+          <p class="placeholder-subtitle">
+            Discover patterns across your moods, conversations, and journal entries. Gentle wisdom from your own journey.
+          </p>
+
+          <div id="insights-cards" style="width:100%;max-width:700px;margin-top:24px;"></div>
+          <div id="weekly-summary" style="width:100%;max-width:700px;"></div>
+        </div>
+      </section>
+
+      <section id="settings-view" class="view" role="region" aria-label="Settings">
+        <div class="placeholder-view">
+          <div class="placeholder-icon" aria-hidden="true">⚙️</div>
+          <h1 class="placeholder-title">Settings</h1>
+          <p class="placeholder-subtitle">
+            Personalise your Serenity experience — your name, preferences, notification settings, and privacy controls.
+          </p>
+          <!-- <span class="placeholder-chip">Coming soon</span> -->
+
+          <div id="settings-profile" style="width:100%;max-width:540px;margin-top:24px;"></div>
+          <div id="settings-preferences" style="width:100%;max-width:540px;"></div>
+          <div id="settings-privacy" style="width:100%;max-width:540px;"></div>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/memory.js"></script>
+  <script src="js/navigation.js"></script>
+  <script src="js/background.js"></script>
+  <script src="js/chat.js"></script>
+  <script src="js/app.js"></script>
+
+  <div id="info-modal" class="info-modal hidden">
+    <div class="info-content">
+      <span id="close-info">&times;</span>
+
+      <h3>About Serenity</h3>
+      <p>A calm space to reflect, express, and understand your thoughts without pressure.</p>
+
+      <h3>Mood check-ins</h3>
+      <p>Your mood helps shape how Serenity responds to you.</p>
+
+      <h3>Current chat started on</h3>
+      <p id="chat-start-time"></p>
+
+      <h3>Privacy</h3>
+      <p>Your data is stored locally on this device.</p>
+    </div>
+  </div>
+
+</body>
+</html>
