@@ -345,6 +345,7 @@ function initMoodSelector() {
     pill.style.setProperty("--mood-color", mood.color);
 
     pill.addEventListener("click", () => {
+      if (AppState.isTyping || isSendingMessage) return;
       container.querySelectorAll(".mood-pill").forEach((p) => p.classList.remove("selected"));
       pill.classList.add("selected");
 
