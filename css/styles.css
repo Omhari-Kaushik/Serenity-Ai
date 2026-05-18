@@ -909,44 +909,7 @@ body {
   z-index: 90;
 }
 
-/* ─── Responsive ───────────────────────────────────────────── */
-@media (max-width: 767px) {
-  #hamburger {
-    display: flex;
-  }
-
-  #sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    transform: translateX(-100%);
-  }
-
-  #sidebar.open {
-    transform: translateX(0);
-  }
-
-  #sidebar.open ~ #sidebar-overlay,
-  .sidebar-open #sidebar-overlay {
-    display: block;
-  }
-
-  .view {
-    padding: 20px 16px;
-  }
-
-  #message-list {
-    padding: 16px;
-  }
-
-  .chat-input-area {
-    padding: 12px 16px 16px;
-  }
-
-  .message-wrapper {
-    max-width: 88%;
-  }
-}
+/* ─── Responsive — full rules are at the bottom of this file ── */
 
 /* ─── Breathing ring animation (decorative) ────────────────── */
 .breathing-ring {
@@ -2053,3 +2016,675 @@ body.reduce-motion .glass-card:hover {
   
 }
 
+
+/* ============================================================
+   MOBILE RESPONSIVE — full overhaul for screens ≤ 767px
+   All class/id names preserved; no JS-facing attributes changed.
+   ============================================================ */
+
+/* ─── Safe-area / viewport meta helpers ─────────────────── */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .chat-input-area {
+    padding-bottom: calc(22px + env(safe-area-inset-bottom));
+  }
+}
+
+/* ─── Small phones (≤ 400px) tweak base font ───────────── */
+@media (max-width: 400px) {
+  :root {
+    --radius-lg: 18px;
+    --radius-md: 14px;
+  }
+}
+
+/* ─── Primary mobile breakpoint ────────────────────────── */
+@media (max-width: 767px) {
+
+  /* --- App shell --- */
+  #app {
+    flex-direction: column;
+  }
+
+  /* --- Sidebar: slide-in drawer --- */
+  #sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: min(280px, 85vw);
+    height: 100%;
+    height: 100dvh;
+    transform: translateX(-100%);
+    z-index: 300;
+    padding: 20px 0 env(safe-area-inset-bottom, 16px);
+    overflow-y: auto;
+  }
+
+  #sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Overlay: show when sidebar is open */
+  #sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(50, 35, 80, 0.3);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 200;
+  }
+
+  #sidebar.open ~ #sidebar-overlay,
+  .sidebar-open #sidebar-overlay {
+    display: block;
+  }
+
+  /* --- Hamburger: always visible on mobile --- */
+  #hamburger {
+    display: flex;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 400;
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    padding: 7px;
+  }
+
+  /* --- Main content takes full screen --- */
+  #main-content {
+    width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  /* --- Views --- */
+  .view {
+    padding: 16px 14px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Placeholder views: better vertical rhythm on small screens */
+  .placeholder-view {
+    gap: 10px;
+    padding: 12px 0; /* zero horizontal — parent view already has 14px padding */
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .placeholder-icon {
+    font-size: 40px;
+  }
+
+  .placeholder-title {
+    font-size: 26px;
+  }
+
+  .placeholder-subtitle {
+    font-size: 13.5px;
+    max-width: 90%;
+  }
+
+  /* ─── Chat view ─────────────────────────────────────── */
+  #chat-view {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  /* Chat header: shift right to properly clear the hamburger (36px + 12px left + 16px gap = 64px) */
+  .chat-header {
+    padding: 10px 14px 10px 66px;
+    flex-shrink: 0;
+    min-height: 62px;
+    align-items: center;
+  }
+
+  .chat-avatar {
+    width: 34px;
+    height: 34px;
+    font-size: 15px;
+  }
+
+  .chat-header-name {
+    font-size: 17px;
+  }
+
+  .chat-header-status {
+    font-size: 11px;
+  }
+
+  .chat-header-actions {
+    gap: 6px;
+  }
+
+  .header-action-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
+
+  /* Message list: fills available space */
+  #message-list {
+    flex: 1;
+    padding: 14px 12px;
+    gap: 14px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Wider bubbles on mobile */
+  .message-wrapper {
+    max-width: 90%;
+  }
+
+  .message-bubble {
+    font-size: 14px;
+    padding: 11px 14px;
+  }
+
+  .message-time {
+    font-size: 9px;
+  }
+
+  /* Chat input area */
+  .chat-input-area {
+    padding: 10px 12px 14px;
+    flex-shrink: 0;
+  }
+
+  /* Mood pills: horizontal scroll, no wrap, smaller */
+  .mood-row {
+    gap: 6px;
+    margin-bottom: 8px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+
+  .mood-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mood-label {
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  #mood-selector {
+    flex-wrap: nowrap;
+    gap: 5px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  #mood-selector::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mood-pill {
+    flex-shrink: 0;
+    font-size: 11.5px;
+    padding: 4px 10px 4px 7px;
+  }
+
+  .mood-emoji {
+    font-size: 12px;
+  }
+
+  /* Input row */
+  .input-row {
+    padding: 8px 10px;
+    border-radius: 18px;
+    gap: 8px;
+  }
+
+  #chat-input {
+    font-size: 15px; /* prevents iOS auto-zoom (must be ≥16px or 15px works too) */
+    min-height: 20px;
+    max-height: 100px;
+  }
+
+  #send-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .input-action-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 15px;
+  }
+
+  /* ─── Mood tracker view ──────────────────────────────── */
+  #mood-view {
+    padding: 16px 12px;
+  }
+
+  #mood-view .placeholder-view {
+    padding-top: 10px;
+  }
+
+  #mood-tracker-content {
+    max-width: 100%;
+    margin-top: 16px;
+    gap: 12px;
+  }
+
+  #mood-filter-bar {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .mood-filter {
+    font-size: 11.5px;
+    padding: 5px 10px;
+  }
+
+  #mood-summary-card {
+    padding: 16px;
+    min-height: auto;
+  }
+
+  .mood-summary-name {
+    font-size: 18px;
+  }
+
+  .mood-summary-emoji {
+    font-size: 24px;
+  }
+
+  .mood-chart-bars {
+    gap: 8px;
+    padding: 0 4px;
+  }
+
+  .mood-chart-bar {
+    width: 18px;
+  }
+
+  .mood-chart-plot {
+    height: 120px;
+  }
+
+  .mood-chart-label {
+    font-size: 10px;
+  }
+
+  .mood-chart-emoji {
+    font-size: 14px;
+  }
+
+  .mood-history-item {
+    padding: 12px 14px;
+  }
+
+  /* ─── Journal view ───────────────────────────────────── */
+  #journal-view {
+    padding: 16px 14px;
+    overflow-y: auto;
+    overflow-x: hidden; /* prevent horizontal bleed */
+  }
+
+  #journal-view .placeholder-view {
+    padding-top: 10px;
+    padding-bottom: 24px;
+    padding-left: 0;
+    padding-right: 0;
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  .journal-header {
+    margin-bottom: 14px;
+    text-align: center;
+  }
+
+  #journal-editor,
+  #journal-entries-list {
+    max-width: 100%;
+    width: 100%;
+    margin-top: 14px;
+    overflow-x: hidden;
+  }
+
+  .journal-card {
+    padding: 14px 14px 12px;
+    margin-bottom: 12px;
+  }
+
+  .journal-textarea {
+    font-size: 15px; /* prevents iOS zoom */
+    min-height: 120px;
+  }
+
+  .journal-save-btn {
+    padding: 11px 14px;
+    font-size: 13.5px;
+  }
+
+  .journal-top-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    margin: 10px 0;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .journal-search-input {
+    max-width: 100%;
+    min-width: 0;
+    width: 100%;
+    font-size: 15px; /* prevent iOS zoom */
+    box-sizing: border-box;
+  }
+
+  .journal-date-filters {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .journal-filter-bar {
+    gap: 8px;
+    margin-bottom: 12px;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .journal-mood-pills {
+    gap: 6px;
+  }
+
+  .journal-entry-meta {
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+  }
+
+  .journal-entry-actions {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* ─── Settings view ──────────────────────────────────── */
+  #settings-view {
+    padding: 16px 12px;
+  }
+
+  #settings-profile,
+  #settings-preferences,
+  #settings-privacy {
+    max-width: 100%;
+  }
+
+  .settings-card {
+    padding: 14px 14px 12px;
+    margin-bottom: 12px;
+  }
+
+  .settings-card-title {
+    font-size: 14px;
+  }
+
+  .settings-input {
+    font-size: 15px; /* prevent iOS auto-zoom */
+  }
+
+  .settings-toggle-row {
+    font-size: 13.5px;
+  }
+
+  /* ─── Insights view ──────────────────────────────────── */
+  #insights-view {
+    padding: 16px 12px;
+  }
+
+  #insights-view .placeholder-view {
+    padding-top: 10px;
+    padding-bottom: 24px;
+  }
+
+  #insights-cards,
+  #weekly-summary {
+    max-width: 100%;
+    margin-top: 16px;
+  }
+
+  .insights-card {
+    padding: 14px 14px 12px;
+    margin-bottom: 12px;
+  }
+
+  /* ─── Info modal ─────────────────────────────────────── */
+  .info-modal {
+    padding: 16px;
+    align-items: flex-end; /* slide up from bottom on mobile */
+  }
+
+  .info-content {
+    width: 100%;
+    border-radius: 20px 20px 16px 16px;
+    padding: 20px 18px 24px;
+  }
+
+  /* ─── Sidebar internals on mobile ────────────────────── */
+  .sidebar-brand {
+    padding: 0 18px 20px;
+    margin-bottom: 12px;
+  }
+
+  .brand-name {
+    font-size: 20px;
+  }
+
+  #session-list-container {
+    padding: 8px 10px;
+  }
+
+  #new-chat-btn {
+    margin: 8px 10px 4px;
+    padding: 12px 12px;
+    font-size: 13px;
+  }
+
+  .nav-list {
+    padding: 0 10px;
+    gap: 2px;
+  }
+
+  .nav-item {
+    padding: 12px 12px; /* bigger tap target */
+  }
+
+  .nav-label {
+    font-size: 13px;
+  }
+
+  .sidebar-footer {
+    padding: 14px 18px 0;
+  }
+
+  /* ─── Attach note toast ──────────────────────────────── */
+  .attach-note {
+    bottom: 90px;
+    left: 16px;
+    right: 16px;
+    transform: translateX(0) translateY(10px);
+    text-align: center;
+  }
+
+  .attach-note.show {
+    transform: translateX(0) translateY(0);
+  }
+
+  /* ─── Voice view ─────────────────────────────────────── */
+  #voice-view {
+    padding: 20px 14px;
+  }
+
+  #voice-visualizer,
+  #voice-transcript {
+    max-width: 100%;
+  }
+
+  /* ─── Glass card: remove hover lift on touch devices ─── */
+  .glass-card:hover {
+    transform: none;
+  }
+
+  /* ─── Session list items: bigger tap target ──────────── */
+  .session-item {
+    padding: 12px 12px;
+    margin-bottom: 4px;
+  }
+
+}
+
+/* ─── Tablet / mid-size screens (768px – 1024px) ──────── */
+@media (min-width: 768px) and (max-width: 1024px) {
+  :root {
+    --sidebar-width: 210px;
+  }
+
+  .chat-header {
+    padding: 16px 22px 14px;
+  }
+
+  #message-list {
+    padding: 18px 22px;
+  }
+
+  .chat-input-area {
+    padding: 12px 22px 18px;
+  }
+
+  .message-wrapper {
+    max-width: 80%;
+  }
+
+  .view {
+    padding: 22px 24px;
+  }
+}
+
+/* ─── Landscape phones ───────────────────────────────────── */
+@media (max-width: 767px) and (orientation: landscape) {
+  #chat-view {
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  #message-list {
+    /* Shorter message list in landscape so input is reachable */
+    max-height: calc(100dvh - 120px);
+  }
+
+  .chat-input-area {
+    padding: 8px 12px 10px;
+  }
+
+  .mood-row {
+    display: none; /* hide mood row in landscape to save vertical space */
+  }
+
+  #sidebar {
+    width: min(260px, 60vw);
+  }
+}
+
+/* ─── Very small phones (≤ 360px) ───────────────────────── */
+@media (max-width: 360px) {
+  .chat-header {
+    padding: 10px 10px 10px 52px;
+  }
+
+  .chat-header-name {
+    font-size: 15px;
+  }
+
+  .brand-name {
+    font-size: 18px;
+  }
+
+  .message-bubble {
+    font-size: 13.5px;
+  }
+
+  .placeholder-title {
+    font-size: 22px;
+  }
+
+  .mood-pill {
+    font-size: 11px;
+    padding: 4px 8px 4px 6px;
+  }
+}
+
+
+/* ============================================================
+   TARGETED FIXES — journal overflow & hamburger spacing
+   Root cause: inline styles on #journal-editor / #journal-entries-list
+   and .journal-content using align-items:center misaligning content
+   ============================================================ */
+
+/* Fix journal content container — center was pushing children off-left */
+@media (max-width: 767px) {
+  .journal-content {
+    align-items: stretch; /* was: center — this caused left overflow */
+    width: 100%;
+  }
+
+  /* Override the inline style max-width:640px set in HTML */
+  #journal-editor,
+  #journal-entries-list {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 12px !important;
+    box-sizing: border-box;
+  }
+
+  /* journal-top-bar injected inside #journal-editor */
+  .journal-top-bar {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* filter bar injected inside #journal-entries-list */
+  .journal-filter-bar {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Fix hamburger ↔ chat header — increase gap further */
+  .chat-header {
+    padding-left: 72px !important;
+  }
+}
+
+/* ============================================================
+   FIX — Hide hamburger when sidebar is open so it doesn't
+   appear to collide with the Serenity brand inside the sidebar.
+   Uses :has() (supported in all modern Android/iOS browsers).
+   ============================================================ */
+@media (max-width: 767px) {
+  #app:has(#sidebar.open) #hamburger {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  #hamburger {
+    transition: opacity 0.25s ease;
+  }
+}
